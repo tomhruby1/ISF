@@ -1,4 +1,4 @@
-a0 = 0.5;
+a0 = - 0.5;
 b0 = 1;
 ND = 100;
 y = zeros(ND,1);
@@ -17,13 +17,14 @@ end
 theta = [y(1:ND-1,1), u(1:ND-1,1)];
 E = e(1:ND-1, 1);
 
-odhad = inv(theta'* theta)*theta'* y(ND-1,1)';
+odhad = inv(theta'* theta)*theta'.* y(ND-1,1)';
 
 theta_odhad = theta' + inv(theta'* theta)*theta'* e(ND-1,1)';
 chyba = theta'  - theta_odhad;
 
 
 mse(chyba(1,:))
+
 mse(chyba(2,:))
 
 
