@@ -1,41 +1,36 @@
-clc; clear; close all;
+clear all
+clc
+close all
 
-load('isf_2_data.mat');
+%naètení dat
 
-t = X3(1:100)';
-y = Y3(1:100)';
-X_val = X3(101:end);
-Y_val = X3(101:end);
+t = xlsread("Svrcinova_barc_rocni.xlsx","A2:A104");
+y = xlsread("Svrcinova_barc_rocni.xlsx", "B3:B105");
 
-%naÄtenÃ­ dat
-
-%t = xlsread("Svrcinova_barc_rocni.xlsx","A2:A104");
-%y = xlsread("Svrcinova_barc_rocni.xlsx", "B3:B105");
-
-%pomocnÃ© vÃ½poÄty a vykreslenÃ­ dat
-n=length(y); %poÄet pozorovÃ¡nÃ­
-maxp = 5; %maximÃ¡lnÃ­ stupeÅˆ polynomu
+%pomocné vıpoèty a vykreslení dat
+n=length(y); %poèet pozorování
+maxp = 5; %maximální stupeò polynomu
 
 %%
 
-%odhad stupnÄ› regresnÃ­ho polynomu pomoci metody nejmenÅ¡Ã­ch ÄtvercÅ¯
-%matlab mÃ¡ pro toto fuknci
+%odhad stupnì regresního polynomu pomoci metody nejmenších ètvercù
+%matlab má pro toto fuknci
 %yodh = polyval(polyfit(t,y,p));
 %my to ale naprogramujeme:
 
-for p = 1:maxp %projede vÅ¡echny stupnÄ› polynomu
+for p = 1:maxp %projede všechny stupnì polynomu
     
-    X = ones(n,1); %vytvoÅ™Ã­me matici X
+    X = ones(n,1); %vytvoøíme matici X
     for i = 1:p
         X =[X, t.^i];
     end
  
-    betaodhad = X'*X\(X'*y); %odhad parametrÅ¯ metodou nejmenÅ¡Ã­ch ÄtvercÅ¯
-    yodhad = X*betaodhad; %odhad vyrovnÃ¡vanÃ½ch hodnot
-    krit(p) = norm(y-yodhad)^2/(n-p); %kritickÃ¡ hodnota
+    betaodhad = X'*X\(X'*y); %odhad parametrù metodou nejmenších ètvercù
+    yodhad = X*betaodhad; %odhad vyrovnávanıch hodnot
+    krit(p) = norm(y-yodhad)^2/(n-p); %kritická hodnota
     
     
-    %kriteria pro odhad stupnÄ› polynomu
+    %kriteria pro odhad stupnì polynomu
     s2(p) = krit(p);
     AIC(p) = log(s2(p))+2*p/n;
     BIC(p) = n* log(s2(p)) + p*log(n);
@@ -45,7 +40,7 @@ for p = 1:maxp %projede vÅ¡echny stupnÄ› polynomu
     
 end
 
-%najdu nejlepÅ¡Ã­ hodnotu kriteria a vypÃ­Å¡u stupen polynomu
+%najdu nejlepší hodnotu kriteria a vypíšu stupen polynomu
 %lze urychlit p_opt = find(AIC == min(AIC));
 
 AICMIN = min(AIC);
@@ -72,12 +67,12 @@ for l = 1:maxp
     
 end
 
-%vÃ½poÄet a zabrazenÃ­ kritickÃ© hodnoty
+%vıpoèet a zabrazení kritické hodnoty
 % plot(krit,'o')
 % grid on
 % ylim([0,1])
 
-%vykreslenÃ­ kriterii
+%vykreslení kriterii
 figure
 subplot(2,3,1); plot(1:maxp,AIC,'or');
 title('AIC');grid on;
@@ -93,30 +88,31 @@ subplot(2,3,6); plot(1:maxp,R2,'or');
 title('R2');grid on;
 
 
-%vykreslenÃ­ pÅ¯vodnÃ­ch dat
+%vykreslení pùvodních dat
 figure
-plot(t,y,":o") %vykreslenÃ­ dat
-grid on %mÅ™Ã­Å¾ka
-hold on %propojÃ­ s dalÅ¡Ã­mi obrÃ¡zky
+plot(t,y,":o") %vykreslení dat
+grid on %møíka
+hold on %propojí s dalšími obrázky
 
-%odhad parametrÅ¯ a vyrovnanÃ½ch hodnot pro optiÃ¡lnÃ­ stupeÅˆ polynomu
+%odhad parametrù a vyrovnanıch hodnot pro optiální stupeò polynomu
 [b,S] = polyfit(t,y,p_opt);
 y_odhad2 = polyval(b,t);
-%vykreslenÃ­ polynomu
+%vykreslení polynomu
 plot(t,y_odhad2,'.-','color','g')
 hold on
 
-%predikce na pÅ™Ã­Å¡tÃ­ch 5 let
+%predikce na pøíštích 5 let
 h = 5;
 plot(max(t)+1:max(t) + h,polyval(b,max(t)+1:max(t) + h),'x-','color','r')
 xlabel('Cas t')
 ylabel('Prumerne rocni teploty')
-title(['NejvhodnÄ›jÅ¡Ã­ stupeÅˆ polynomu je ',num2str(p_opt)])
+title(['Nejvhodnìjší stupeò polynomu je ',num2str(p_opt)])
 hold on
 
-%zobrazenÃ­ konfidenÄnÃ­ch intervalÅ¯
+%zobrazení konfidenèních intervalù
 [y_odhad3,delta] = polyconf(b,t,S,'simopt','on','predopt','observation');
 plot(t,y_odhad3+delta,'b--')
 plot(t,y_odhad3-delta,'b--')
+
 
 
