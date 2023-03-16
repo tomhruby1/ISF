@@ -4,13 +4,18 @@ clear; clc; close all;
 a11 = -0.5; b11 = 0.9; c11 = 0; lambda = 1;
 a12 = -0.5; b12 = 0.9; c12 = -0.4;
 
+
+% počet dat je 501. protože t jde od nuly až do 500
 ND = 501;
 t = linspace(0,ND-1,ND);
 
+%počet problémů odpovídá počtu odlišných vstupních signálů-budičů
 problem_size = 3;
 
+%systém 1
 y1 = zeros(ND,problem_size);
 y1(1,1) = 0;
+%systém2
 y2 = zeros(ND,problem_size);
 y2(1,1) = 0;
 
@@ -36,15 +41,21 @@ for problem = 1:3
     end
 end
 
-figure;
-plot(t, y1);
+p1 = figure;
+plot(t, y1,'LineWidth',1.2);
 title('System1');
 legend('step', 'impulse', 'gaussian');
+xlabel("t")
+ylabel("y(t)")
+%exportgraphics(p1,'system1.pdf')
 
-figure;
-plot(t, y2);
+p2 = figure;
+plot(t, y2,'LineWidth',1.2);
 title('System2');
 legend('step', 'impulse', 'gaussian');
+xlabel("t")
+ylabel("y(t)")
+%exportgraphics(p2,'system2.pdf')
 
 %% B
 
@@ -88,15 +99,15 @@ k = 2;
 a = theta_odhad1(1,1) 
 b = theta_odhad2(1,1)
 
-u = zeros(ND,1)
+u = zeros(ND,1);
 for i = 2:ND
     u(i) = -k*y1_reg(i-1) + v(i-1);
     y1_reg(i) = -a*y1(i-1) + b*u(i) + e(i, 1);
 end
 
-
+figure
 plot(t, y1_reg)
 
 %%
 %theta_odhad = phi' + inv(phi'* phi)*phi'* e(ND-1,1)';
-chyba = [a11, b11]'  - theta_odhad;
+%chyba = [a11, b11]'  - theta_odhad;
