@@ -28,7 +28,7 @@ for q = 1:N_kappa
     
     v  =  randn(ND,1)*kappa;
 
-    k = 0.8; % zafixovano tak, aby pro kappa = 0 stabilni
+    k = 0.8; % zafixovano tak, aby pro kappa = 0 stabilni?!
 
     u = zeros(ND,1);
     for i = 2:ND
@@ -52,3 +52,17 @@ plot(kappas, theta_odhady(1,:))
 plot(kappas, theta_odhady(2,:))
 legend('\hat a', '\hat b')
 
+
+%% jeden beh --> volba k aby sys. stabilni pro kappa^2 = 0
+kappa = 0
+v  =  randn(ND,1)*kappa;
+
+k = 0.5; % zafixovano tak, aby pro kappa = 0 stabilni?!
+
+u = zeros(ND,1);
+for i = 2:ND
+    u(i) = -k*y1(i-1) + v(i-1);
+    y1(i) = -a11*y1(i-1) + b11*u(i) + e(i, 1);
+end
+figure; 
+plot(1:ND, y1)
