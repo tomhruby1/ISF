@@ -50,7 +50,7 @@ end
 figure; hold on
 plot(kappas, theta_odhady(1,:))
 plot(kappas, theta_odhady(2,:))
-legend('\hat a', '\hat b')
+legend('$\hat a$', '$\hat b$', 'Interpreter','latex')
 
 
 %% jeden beh --> volba k aby sys. stabilni pro kappa^2 = 0
