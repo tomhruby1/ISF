@@ -16,120 +16,68 @@ validace = pocet_dat-identifikace;
 t = datax(1:identifikace,1);
 y = datay(1:identifikace,1);
 
-%pomocné výpoèty a vykreslení dat
+t_pred = datax(identifikace+1:pocet_dat,1);
+y_pred = datay(identifikace+1:pocet_dat,1);
+
+%pomocné výpoèty a inicializace 
 n=length(y); %poèet pozorování
-maxp = 5; %maximální stupeò polynomu
-
+maxp = 6; %maximální stupeò polynomu
+yodhad = zeros(identifikace, maxp);
+ypredikce = zeros(validace, maxp);
+chyba = zeros(3, maxp);
 %%
-problem = 1;
 
-switch problem 
-    case 1
-        for p = 1:maxp %projede všechny stupnì polynomu
+for p = 1:maxp %projede všechny stupnì polynomu
     
         X = ones(n,1); %vytvoøíme matici X
         for i = 1:p
             X =[X, t.^i];
         end
-
-        betaodhad = X'*X\(X'*y); %odhad parametrù metodou nejmenších ètvercù
-        %betaodhad = pinv(X)*y; ?? jak na case 2?
-
-
-        yodhad = X*betaodhad; %odhad vyrovnávaných hodnot
-            %kriteria pro odhad stupnì polynomu
-    s2(p) = krit(p);
-    AIC(p) = log(s2(p))+2*p/n;
-    BIC(p) = n* log(s2(p)) + p*log(n);
-    FPE(p) = s2(p)*(1+2*p/(n-p));
-    R2adj(p)= 1-s2(p)/var(y);
-    R2(p) = 1-s2(p)*(n-p)/var(y)*(n-1);
-    
-end
-
-      case 3 % 3  možnost odhad stupnì regresního polynomu pomoci metody nejmenších ètvercù
-        for p = 1:maxp
         
-        yodh = polyval(polyfit(t,y,p));
-          end
+        %identifikace 
+        betaodhad1 = pinv(X)*y;   %øešení ve smysli nejmenšícch ètvercù
+        yodhad(1:identifikace,1) = X*betaodhad1;   %odhad vyrovnávaných hodnot
+
+        betaodhad2 = X'*X\(X'*y); %øešení normální soustavy rovnic 
+        yodhad(1:identifikace,2) = X*betaodhad2; %odhad vyrovnávaných hodnot
+       
+        [b,S] = polyfit(t,y,p);
+        yodhad(1:identifikace,3) = polyval(b,t);
+
+
+        Xpr = ones(validace,1); %vytvoøíme matici X
+        for i = 1:p
+            Xpr =[Xpr, t_pred.^i];
+        end
+
+        %validace   %DODÌLAT!!!!
+        ypredikce(1:validace,1) = Xpr*betaodhad1;
+        ypredikce(1:validace,2) = Xpr*betaodhad2;
+        ypredikce(1:validace,3)= polyval(b,t_pred);
+
+        %odhad chyby
+        chyba(:,p) = [immse(ypredikce(:,1),y_pred) ;immse(ypredikce(:,2),y_pred) ;...
+            immse(ypredikce(:,3),y_pred)];
+
+
+        %vykreslení
+        figure 
+        plot(datax,datay,":o") %vykreslení dat která jsou k dispozici 
+        grid on %møížka
+        hold on 
+        plot(t,yodhad(1:identifikace,3),'.-','color','g') %vykreslení polynomu pro identifikaci 
+        hold on 
+        plot(t_pred,ypredikce(1:validace,3),'x-','color','r')
+        xlabel('x')
+        ylabel('y')
+        title(['Polynom stupnì ',num2str(p)])
+        hold off         
 end
-    krit(p) = norm(y-yodhad)^2/(n-p); %kritická hodnota
-    
-    
 
-%najdu nejlepší hodnotu kriteria a vypíšu stupen polynomu
-%lze urychlit p_opt = find(AIC == min(AIC));
-
-AICMIN = min(AIC);
-BICMIN = min(BIC);
-FPEMIN = min(FPE);
-S2MIN = min(s2);
-R2ADJMAX = max(R2adj);
-R2MAX = max(R2);
-
-for l = 1:maxp
-    if AICMIN == AIC(l)
-        disp('AIC min pro polynom stupne')
-        p_opt = round(AICMIN);
-        disp(l)
-    end
-    if BICMIN == BIC(l)
-        disp('BIC min pro polynom stupne')
-        disp(l)
-    end
-    if FPEMIN == FPE(l)
-        disp('FPE min pro polynom stupne')
-        disp(l)
-    end
-    
-end
-
-%výpoèet a zabrazení kritické hodnoty
-% plot(krit,'o')
-% grid on
-% ylim([0,1])
-
-%vykreslení kriterii
-figure
-subplot(2,3,1); plot(1:maxp,AIC,'or');
-title('AIC');grid on;
-subplot(2,3,2); plot(1:maxp,BIC,'or');
-title('BIC');grid on;
-subplot(2,3,3); plot(1:maxp,FPE,'or');
-title('FPE');grid on;
-subplot(2,3,4); plot(1:maxp,s2,'or');
-title('s2');grid on;
-subplot(2,3,5); plot(1:maxp,R2adj,'or');
-title('R2adj');grid on;
-subplot(2,3,6); plot(1:maxp,R2,'or');
-title('R2');grid on;
+chyba
 
 
-%vykreslení pùvodních dat
-figure
-plot(t,y,":o") %vykreslení dat
-grid on %møížka
-hold on %propojí s dalšími obrázky
 
-%odhad parametrù a vyrovnaných hodnot pro optiální stupeò polynomu
-[b,S] = polyfit(t,y,p_opt);
-y_odhad2 = polyval(b,t);
-%vykreslení polynomu
-plot(t,y_odhad2,'.-','color','g')
-hold on
-
-%predikce na pøíštích 5 let
-h = 5;
-plot(max(t)+1:max(t) + h,polyval(b,max(t)+1:max(t) + h),'x-','color','r')
-xlabel('Cas t')
-ylabel('Prumerne rocni teploty')
-title(['Nejvhodnìjší stupeò polynomu je ',num2str(p_opt)])
-hold on
-
-%zobrazení konfidenèních intervalù
-[y_odhad3,delta] = polyconf(b,t,S,'simopt','on','predopt','observation');
-plot(t,y_odhad3+delta,'b--')
-plot(t,y_odhad3-delta,'b--')
 
 
 
