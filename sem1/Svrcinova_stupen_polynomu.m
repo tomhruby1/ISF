@@ -19,8 +19,10 @@ datay = Y1';
         hold off 
 %%
 % rozdìlení na identifikaèní a validaèní 
+datax = datax(10:end,1);
+datay = datay(10:end,1);
 pocet_dat =length(datax);
-pomer_idval = 0.95;
+pomer_idval = 0.9;
 identifikace = floor(pocet_dat*pomer_idval);
 validace = pocet_dat-identifikace;
 
@@ -62,7 +64,7 @@ for p = 1:maxp %projede všechny stupnì polynomu
             Xpr =[Xpr, t_pred.^i];
         end
 
-        %validace   %DODÌLAT!!!!
+        %validace   
         ypredikce(1:validace,1) = Xpr*betaodhad1;
         ypredikce(1:validace,2) = Xpr*betaodhad2;
         ypredikce(1:validace,3)= polyval(b,t_pred);
