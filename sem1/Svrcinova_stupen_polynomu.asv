@@ -2,7 +2,7 @@ clear all
 clc
 close all
 
-%naètení dat a rozdìlení na identifikaèní a validaèní 
+%naÄtenÃ­ dat a rozdÄ›lenÃ­ na identifikaÄnÃ­ a validaÄnÃ­ 
 
 load isf_2_data.mat
 datax = X1';
@@ -16,28 +16,28 @@ validace = pocet_dat-identifikace;
 t = datax(1:identifikace,1);
 y = datay(1:identifikace,1);
 
-%pomocné vıpoèty a vykreslení dat
-n=length(y); %poèet pozorování
-maxp = 5; %maximální stupeò polynomu
+%pomocnÃ© vÃ½poÄty a vykreslenÃ­ dat
+n=length(y); %poÄet pozorovÃ¡nÃ­
+maxp = 5; %maximÃ¡lnÃ­ stupeÅˆ polynomu
 
 %%
-problem = 1;
+problem = 3;
 
 switch problem 
     case 1
-        for p = 1:maxp %projede všechny stupnì polynomu
+        for p = 1:maxp %projede vÅ¡echny stupnÄ› polynomu
     
-        X = ones(n,1); %vytvoøíme matici X
+        X = ones(n,1); %vytvoÅ™Ã­me matici X
         for i = 1:p
             X =[X, t.^i];
         end
 
-        betaodhad = X'*X\(X'*y); %odhad parametrù metodou nejmenších ètvercù
+        betaodhad = X'*X\(X'*y); %odhad parametrÅ¯ metodou nejmenÅ¡Ã­ch ÄtvercÅ¯
         %betaodhad = pinv(X)*y; ?? jak na case 2?
 
 
-        yodhad = X*betaodhad; %odhad vyrovnávanıch hodnot
-            %kriteria pro odhad stupnì polynomu
+        yodhad = X*betaodhad; %odhad vyrovnÃ¡vanÃ½ch hodnot
+            %kriteria pro odhad stupnÄ› polynomu
     s2(p) = krit(p);
     AIC(p) = log(s2(p))+2*p/n;
     BIC(p) = n* log(s2(p)) + p*log(n);
@@ -47,17 +47,17 @@ switch problem
     
 end
 
-      case 3 % 3  monost odhad stupnì regresního polynomu pomoci metody nejmenších ètvercù
+      case 3
         for p = 1:maxp
-        
+        % 3  moÅ¾nost odhad stupnÄ› regresnÃ­ho polynomu pomoci metody nejmenÅ¡Ã­ch ÄtvercÅ¯
         yodh = polyval(polyfit(t,y,p));
           end
 end
-    krit(p) = norm(y-yodhad)^2/(n-p); %kritická hodnota
+    krit(p) = norm(y-yodhad)^2/(n-p); %kritickÃ¡ hodnota
     
     
 
-%najdu nejlepší hodnotu kriteria a vypíšu stupen polynomu
+%najdu nejlepÅ¡Ã­ hodnotu kriteria a vypÃ­Å¡u stupen polynomu
 %lze urychlit p_opt = find(AIC == min(AIC));
 
 AICMIN = min(AIC);
@@ -84,12 +84,12 @@ for l = 1:maxp
     
 end
 
-%vıpoèet a zabrazení kritické hodnoty
+%vÃ½poÄet a zabrazenÃ­ kritickÃ© hodnoty
 % plot(krit,'o')
 % grid on
 % ylim([0,1])
 
-%vykreslení kriterii
+%vykreslenÃ­ kriterii
 figure
 subplot(2,3,1); plot(1:maxp,AIC,'or');
 title('AIC');grid on;
@@ -105,28 +105,28 @@ subplot(2,3,6); plot(1:maxp,R2,'or');
 title('R2');grid on;
 
 
-%vykreslení pùvodních dat
+%vykreslenÃ­ pÅ¯vodnÃ­ch dat
 figure
-plot(t,y,":o") %vykreslení dat
-grid on %møíka
-hold on %propojí s dalšími obrázky
+plot(t,y,":o") %vykreslenÃ­ dat
+grid on %mÅ™Ã­Å¾ka
+hold on %propojÃ­ s dalÅ¡Ã­mi obrÃ¡zky
 
-%odhad parametrù a vyrovnanıch hodnot pro optiální stupeò polynomu
+%odhad parametrÅ¯ a vyrovnanÃ½ch hodnot pro optiÃ¡lnÃ­ stupeÅˆ polynomu
 [b,S] = polyfit(t,y,p_opt);
 y_odhad2 = polyval(b,t);
-%vykreslení polynomu
+%vykreslenÃ­ polynomu
 plot(t,y_odhad2,'.-','color','g')
 hold on
 
-%predikce na pøíštích 5 let
+%predikce na pÅ™Ã­Å¡tÃ­ch 5 let
 h = 5;
 plot(max(t)+1:max(t) + h,polyval(b,max(t)+1:max(t) + h),'x-','color','r')
 xlabel('Cas t')
 ylabel('Prumerne rocni teploty')
-title(['Nejvhodnìjší stupeò polynomu je ',num2str(p_opt)])
+title(['NejvhodnÄ›jÅ¡Ã­ stupeÅˆ polynomu je ',num2str(p_opt)])
 hold on
 
-%zobrazení konfidenèních intervalù
+%zobrazenÃ­ konfidenÄnÃ­ch intervalÅ¯
 [y_odhad3,delta] = polyconf(b,t,S,'simopt','on','predopt','observation');
 plot(t,y_odhad3+delta,'b--')
 plot(t,y_odhad3-delta,'b--')
