@@ -2,7 +2,7 @@ clear all
 clc
 close all
 
-%načtení dat a rozdělení na identifikační a validační 
+%načtení dat
 
 load isf_2_data.mat
 datax = X1';
@@ -12,12 +12,24 @@ pomer_idval = 0.95;
 identifikace = floor(pocet_dat*pomer_idval);
 validace = pocet_dat-identifikace;
 
+%vykreslení dat 
+        figure 
+        plot(datax,datay,":o") %vykreslení dat která jsou k dispozici 
+        grid on %mřížka
+        hold on 
+        xlabel('x')
+        ylabel('y')
+        title(['Polynom stupně ',num2str(p)])
+        hold off 
 
+%
 t = datax(1:identifikace,1);
 y = datay(1:identifikace,1);
 
 t_pred = datax(identifikace+1:pocet_dat,1);
 y_pred = datay(identifikace+1:pocet_dat,1);
+
+ 
 
 %pomocné výpočty a inicializace 
 n=length(y); %počet pozorování
@@ -44,9 +56,15 @@ for p = 1:maxp %projede všechny stupně polynomu
         [b,S] = polyfit(t,y,p);
         yodhad(1:identifikace,3) = polyval(b,t);
 
+
+        Xpr = ones(validace,1); %vytvoříme matici X
+        for i = 1:p
+            Xpr =[Xpr, t_pred.^i];
+        end
+
         %validace   %DODĚLAT!!!!
-        %ypredikce(1:validace,1) = betaodhad1*t_pred;
-        %ypredikce(1:validace,2) = betaodhad2*t_pred;
+        ypredikce(1:validace,1) = Xpr*betaodhad1;
+        ypredikce(1:validace,2) = Xpr*betaodhad2;
         ypredikce(1:validace,3)= polyval(b,t_pred);
 
         %odhad chyby

@@ -2,16 +2,27 @@ clear all
 clc
 close all
 
-%naètení dat a rozdìlení na identifikaèní a validaèní 
+%naètení dat
 
 load isf_2_data.mat
 datax = X1';
 datay = Y1';
+
+%vykreslení dat 
+        figure 
+        plot(datax,datay,":o") %vykreslení dat která jsou k dispozici 
+        grid on %møížka
+        hold on 
+        xlabel('x')
+        ylabel('y')
+        title(["Data X1,Y1"])
+        hold off 
+%%
+% rozdìlení na identifikaèní a validaèní 
 pocet_dat =length(datax);
 pomer_idval = 0.95;
 identifikace = floor(pocet_dat*pomer_idval);
 validace = pocet_dat-identifikace;
-
 
 t = datax(1:identifikace,1);
 y = datay(1:identifikace,1);
@@ -19,9 +30,10 @@ y = datay(1:identifikace,1);
 t_pred = datax(identifikace+1:pocet_dat,1);
 y_pred = datay(identifikace+1:pocet_dat,1);
 
+ 
 %pomocné výpoèty a inicializace 
 n=length(y); %poèet pozorování
-maxp = 6; %maximální stupeò polynomu
+maxp = 5; %maximální stupeò polynomu
 yodhad = zeros(identifikace, maxp);
 ypredikce = zeros(validace, maxp);
 chyba = zeros(3, maxp);
