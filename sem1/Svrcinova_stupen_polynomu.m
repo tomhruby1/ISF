@@ -8,6 +8,9 @@ load isf_2_data.mat
 datax = X1';
 datay = Y1';
 
+
+%%
+
 %vykreslení dat 
         figure 
         plot(datax,datay,":o") %vykreslení dat která jsou k dispozici 
@@ -22,7 +25,10 @@ datay = Y1';
 datax = datax(10:end,1);
 datay = datay(10:end,1);
 pocet_dat =length(datax);
+
+% pomìr testovacích a trénovacích datinv()
 pomer_idval = 0.9;
+
 identifikace = floor(pocet_dat*pomer_idval);
 validace = pocet_dat-identifikace;
 
@@ -90,7 +96,9 @@ end
 
 chyba
 
-
+rozdil12 = chyba(1,:) - chyba(2,:);
+rozdil13 = chyba(1,:) - chyba(3,:);
+rozdil23 = chyba(2,:) - chyba(3,:);
 
 
 
