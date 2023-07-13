@@ -8,7 +8,7 @@ c = 0.5;
 
 
 % počet dat je 501. protože t jde od nuly až do 500
-ND = 1001; 
+ND = 10^6 + 1; 
 t = linspace(0,ND-1,ND);
 
 % definování systému 
@@ -37,5 +37,5 @@ xlabel("t")
 ylabel("y(t)")
 %exportgraphics(p1,'system1.pdf')
 
-%data = y;
-%save(data)
+% data = cat(2,y,u);
+% save("data.mat", "data")

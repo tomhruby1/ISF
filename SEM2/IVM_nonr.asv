@@ -1,0 +1,31 @@
+clc; clear all; 
+
+% IVM nerekurzivní 
+
+load("data.mat")
+
+y = data(:,1);
+u = data(:,2);
+T = size(y,1);
+
+%vždy data jen vzít a useknout při novám kodu 
+NS = [10^2, 10^3, 10^4, 10^5, 10^6];
+pocet = size(NS,2); 
+ctverce = 
+
+for i = 1:pocet
+
+    %nejmenší čtverce 
+phi = [-y(1:T-1), u(1:T-1)];
+theta_odhad_ls = inv(phi'* phi)*phi' * y(2:T);
+
+theta_odhad_ls
+
+%% IVM odhad
+% theta = (epsilon' phi)^(-1) epsilon' y
+
+epsilon = [-y(2:T), u(1:T-1)];
+phi = [-y(2:T), u(1:T-1)];
+
+theta_ivm = inv(epsilon' * phi)*epsilon' * y(2:T)
+end
