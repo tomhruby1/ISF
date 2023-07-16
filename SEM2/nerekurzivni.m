@@ -28,27 +28,4 @@ epsilon = [[0;u(1:T-1)],[0;0;u(1:T-2)]];
 theta_ivm = inv(epsilon' * phi)*epsilon'* y(1:T);
 ivm(:, j) = theta_ivm;
 
-    % PEM odhad
-
-theta=[1;1;1];
-thetaN=zeros(3,1);   % to je a1 a a2
-
-while norm(theta-thetaN)>1e-3
-    thetaN=theta;
-    sum1=zeros(3,3);
-    sum2=zeros(3,1);
-    eps=0;
-    psi=[0 0 0]';
-    for i=2:length(y)
-        sum1=sum1+psi*psi';
-        sum2=sum2+psi*eps;
-        psi=-thetaN(3)*psi+[-y(i-1) u(i-1) eps ]';
-
-        eps=y(i)-[-y(i-1) u(i-1) eps]*thetaN;
-    end
-    theta=thetaN+inv(sum1)*sum2;   
-end
-
-pem(:, j) = theta;
-
 end

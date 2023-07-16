@@ -35,7 +35,7 @@ plot(1:T, theta');
 legend('a', 'b')
 title("rekurzivni MNC")
 
-%% rekurzivni prid. promena -- dodani xi, S2
+%% rekurzivni prid. promena -- dodani xi, S2 IVM
 
 P = eye(2) * 1000000; % init P - duvera apriorni informaci
 
@@ -82,7 +82,7 @@ plot(1:T, theta');
 legend('a', 'b', 'c')
 title("rekurzivní rozšiřené MNČ")
 
-%% pseudometoda rozsirene MNC -> odhad i c
+%% pseudometoda rozsirene MNC -> odhad i c PEM
 
 th=[1;1;1];
 th_all=th;
