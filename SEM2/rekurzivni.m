@@ -1,6 +1,6 @@
 % rekurzivni MNC a IVM
 
-clc; clear all; 
+clc; clear all; close all
 
 
 load("data.mat")
@@ -9,8 +9,9 @@ y = data(:,1);
 u = data(:,2);
 T = size(y,1);
 
+zobr = 300;
 
-% nejmenší čtvrece 
+% nejmenší čtverce 
 phi = [-y(1:T-1), u(1:T-1)];
 theta_odhad_ls = inv(phi'* phi)*phi' * y(2:T)
 
@@ -31,9 +32,13 @@ end
 theta(:, end)
 
 figure; 
-plot(1:T, theta');
+plot(1:zobr, theta(:,1:zobr)','LineWidth',2);
+hold on 
+plot(1:zobr, ones(1,zobr)*-0.6 ,"k",1:zobr, ones(1,zobr)*1,"k");
 legend('a', 'b')
 title("rekurzivni MNC")
+xlabel("počet dat")
+ylabel("odhad parametrů")
 
 %% rekurzivni prid. promena -- dodani xi, S2 IVM
 
@@ -53,9 +58,13 @@ end
 theta(:, end)
 
 figure; 
-plot(1:T, theta');
+plot(1:zobr, theta(:,1:zobr)','LineWidth',2);
+hold on 
+plot(1:zobr, ones(1,zobr)*-0.6 ,"k",1:zobr, ones(1,zobr)*1,"k");
 legend('a', 'b')
 title("rekurzivni IVM")
+xlabel("počet dat")
+ylabel("odhad parametrů")
 
 
 %% pseudometoda rozsirene MNC -> odhad i c
@@ -78,9 +87,13 @@ end
 theta(:, end)
 
 figure; 
-plot(1:T, theta');
+plot(1:zobr, theta(:,1:zobr)','LineWidth',2);
+hold on 
+plot(1:zobr, ones(1,zobr)*-0.6 ,"k",1:zobr, ones(1,zobr)*1,"k",1:zobr, ones(1,zobr)*0.5,"k");
 legend('a', 'b', 'c')
 title("rekurzivní rozšiřené MNČ")
+xlabel("počet dat")
+ylabel("odhad parametrů")
 
 %% pseudometoda rozsirene MNC -> odhad i c PEM
 
@@ -99,8 +112,12 @@ for t=2:length(u)
 end
 
 figure; 
-plot(1:T, th_all);
+plot(1:zobr, theta(:,1:zobr)','LineWidth',2);
+hold on 
+plot(1:zobr, ones(1,zobr)*-0.6 ,"k",1:zobr, ones(1,zobr)*1,"k",1:zobr, ones(1,zobr)*0.5,"k");
 legend('a', 'b', 'c')
 title("rekurzivní PEM")
+xlabel("počet dat")
+ylabel("odhad parametrů")
 
 

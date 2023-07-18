@@ -29,3 +29,6 @@ theta_ivm = inv(epsilon' * phi)*epsilon'* y(1:T);
 ivm(:, j) = theta_ivm;
 
 end
+
+ctverce
+ivm 

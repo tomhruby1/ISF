@@ -9,7 +9,6 @@ N = [10^2, 10^3, 10^4, 10^5, 10^6];
 pem = zeros(3,5);
 
 
-%
 for cycle = 1:5
     cycle
 
@@ -36,3 +35,5 @@ while norm(theta-thetaN)>1e-5
 end
 pem(:,cycle) = theta
 end
+
+pem
