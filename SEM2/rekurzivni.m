@@ -9,7 +9,8 @@ y = data(:,1);
 u = data(:,2);
 T = size(y,1);
 
-zobr = 300;
+zobr1 = 300;
+zobr2 = 1000000;
 
 % nejmenší čtverce 
 phi = [-y(1:T-1), u(1:T-1)];
@@ -31,75 +32,110 @@ end
 
 theta(:, end)
 
-figure; 
-plot(1:zobr, theta(:,1:zobr)','LineWidth',2);
+figure(1); 
+plot(1:zobr1, theta(:,1:zobr1)','LineWidth',2);
 hold on 
-plot(1:zobr, ones(1,zobr)*-0.6 ,"k",1:zobr, ones(1,zobr)*1,"k");
+plot(1:zobr1, ones(1,zobr1)*-0.6 ,"k",1:zobr1, ones(1,zobr1)*1,"k");
 legend('a', 'b')
 title("rekurzivni MNC")
-xlabel("počet dat")
+xlabel("iterace")
 ylabel("odhad parametrů")
+
+figure(2); 
+plot([1,2, 3, 4, 5], [theta(:,10^2),theta(:,10^3),theta(:,10^4),theta(:,10^5),theta(:,10^6),],"*",'LineWidth',2);
+hold on 
+plot(1:5, ones(1,5)*-0.6 ,"k",1:5, ones(1,5)*1,"k");
+legend('a', 'b')
+title("rekurzivni MNC")
+xlabel("iterace")
+ylabel("odhad parametrů")
+xticks([1,2, 3, 4, 5])
+xticklabels({'10^2', '10^3', '10^4', '10^5', '10^6'})
 
 %% rekurzivni prid. promena -- dodani xi, S2 IVM
 
 P = eye(2) * 1000000; % init P - duvera apriorni informaci
 
-theta = zeros(2,T);
-theta(:, 2) = [-2,2]; %apriorni info
+theta1 = zeros(2,T);
+theta1(:, 2) = [-2,2]; %apriorni info
 for t = 3:T
    xi = [u(t-1); u(t-2)];
    phi = [-y(t-1); u(t-1)]; 
-   e = y(t) - phi' * theta(:, t-1); %chyba predikce -- inovace
+   e = y(t) - phi' * theta1(:, t-1); %chyba predikce -- inovace
    L = (P * phi) / (phi' * P * phi + 1);
-   theta(:,t) = theta(:, t-1) + L*e;
+   theta1(:,t) = theta1(:, t-1) + L*e;
    P = (eye(2) - L*phi')*P; %update P 
 end
 
-theta(:, end)
+theta1(:, end)
 
-figure; 
-plot(1:zobr, theta(:,1:zobr)','LineWidth',2);
+figure(3); 
+plot(1:zobr1, theta1(:,1:zobr1)','LineWidth',2);
 hold on 
-plot(1:zobr, ones(1,zobr)*-0.6 ,"k",1:zobr, ones(1,zobr)*1,"k");
+plot(1:zobr1, ones(1,zobr1)*-0.6 ,"k",1:zobr1, ones(1,zobr1)*1,"k");
 legend('a', 'b')
 title("rekurzivni IVM")
-xlabel("počet dat")
+xlabel("iterace")
 ylabel("odhad parametrů")
+
+figure(4); 
+plot([1,2, 3, 4, 5], [theta1(:,10^2),theta1(:,10^3),theta1(:,10^4),theta1(:,10^5),theta1(:,10^6),],"*",'LineWidth',2);
+hold on 
+plot(1:5, ones(1,5)*-0.6 ,"k",1:5, ones(1,5)*1,"k");
+legend('a', 'b')
+title("rekurzivni IVM")
+xlabel("iterace")
+ylabel("odhad parametrů")
+xticks([1,2, 3, 4, 5])
+xticklabels({'10^2', '10^3', '10^4', '10^5', '10^6'})
 
 
 %% pseudometoda rozsirene MNC -> odhad i c
 
 P = eye(3) * 1000000; % init P - duvera apriorni informaci
 
-theta = zeros(3,T);
+theta2 = zeros(3,T);
 e = zeros(T,1);
-theta(:, 1) = [-2,2,2]; %apriorni info -- pridani c .. sumu
+theta2(:, 1) = [-2,2,2]; %apriorni info -- pridani c .. sumu
 % C nevolit nulove?!
 
 for t = 2:T
    phi = [-y(t-1); u(t-1); e(t-1)]; 
-   e(t) = y(t) - phi' * theta(:, t-1); %chyba predikce -- inovace
+   e(t) = y(t) - phi' * theta2(:, t-1); %chyba predikce -- inovace
    L = (P * phi) / (phi' * P * phi + 1);
-   theta(:,t) = theta(:, t-1) + L*e(t);
+   theta2(:,t) = theta2(:, t-1) + L*e(t);
    P = (eye(3) - L*phi')*P; %update P 
 end
 
-theta(:, end)
+theta2(:, end)
 
-figure; 
-plot(1:zobr, theta(:,1:zobr)','LineWidth',2);
+figure(5); 
+plot(1:zobr1, theta2(:,1:zobr1)','LineWidth',2);
 hold on 
-plot(1:zobr, ones(1,zobr)*-0.6 ,"k",1:zobr, ones(1,zobr)*1,"k",1:zobr, ones(1,zobr)*0.5,"k");
+plot(1:zobr1, ones(1,zobr1)*-0.6 ,"k",1:zobr1, ones(1,zobr1)*1,"k",1:zobr1, ones(1,zobr1)*0.5,"k");
 legend('a', 'b', 'c')
 title("rekurzivní rozšiřené MNČ")
 xlabel("počet dat")
 ylabel("odhad parametrů")
 
+figure(6); 
+plot([1,2, 3, 4, 5], [theta2(:,10^2),theta2(:,10^3),theta2(:,10^4),theta2(:,10^5),theta2(:,10^6),],"*",'LineWidth',2);
+hold on 
+plot(1:5, ones(1,5)*-0.6 ,"k",1:5, ones(1,5)*1,"k",1:5,ones(1,5)*0.5,"k");
+legend('a', 'b')
+title("rekurzivní rozšiřené MNČ")
+xlabel("iterace")
+ylabel("odhad parametrů")
+xticks([1,2, 3, 4, 5])
+xticklabels({'10^2', '10^3', '10^4', '10^5', '10^6'})
+
+
+
 %% pseudometoda rozsirene MNC -> odhad i c PEM
 
-th=[1;1;1];
+th=[-2;2;2];
 th_all=th;
-P=1*eye(3);
+P=0.9*eye(3);
 psi=[0 0 0]';
 eps=0;
 for t=2:length(u)
@@ -111,13 +147,24 @@ for t=2:length(u)
    th_all(:,t)=th;
 end
 
-figure; 
-plot(1:zobr, theta(:,1:zobr)','LineWidth',2);
+figure(7); 
+plot(1:zobr1, th_all(:,1:zobr1)','LineWidth',2);
 hold on 
-plot(1:zobr, ones(1,zobr)*-0.6 ,"k",1:zobr, ones(1,zobr)*1,"k",1:zobr, ones(1,zobr)*0.5,"k");
+plot(1:zobr1, ones(1,zobr1)*-0.6 ,"k",1:zobr1, ones(1,zobr1)*1,"k",1:zobr1, ones(1,zobr1)*0.5,"k");
 legend('a', 'b', 'c')
 title("rekurzivní PEM")
 xlabel("počet dat")
 ylabel("odhad parametrů")
+
+figure(8); 
+plot([1,2, 3, 4, 5], [th_all(:,10^2),th_all(:,10^3),th_all(:,10^4),th_all(:,10^5),th_all(:,10^6),],"*",'LineWidth',2);
+hold on 
+plot(1:5, ones(1,5)*-0.6 ,"k",1:5, ones(1,5)*1,"k",1:5,ones(1,5)*0.5,"k");
+legend('a', 'b')
+title("rekurzivní PEM")
+xlabel("iterace")
+ylabel("odhad parametrů")
+xticks([1,2, 3, 4, 5])
+xticklabels({'10^2', '10^3', '10^4', '10^5', '10^6'})
 
 
