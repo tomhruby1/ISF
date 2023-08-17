@@ -80,7 +80,7 @@ legend('a', 'b')
 title("rekurzivni IVM")
 xlabel("iterace")
 ylabel("odhad parametrů")
-ylim([0.5 1.2])
+ylim([0 2])
 
 figure(4); 
 plot([1,2, 3, 4, 5], -[theta1(1,10^2),theta1(1,10^3),theta1(1,10^4),theta1(1,10^5),theta1(1,10^6),],"*",...
@@ -123,6 +123,7 @@ legend('a', 'b', 'c')
 title("rekurzivní rozšiřené MNČ")
 xlabel("počet dat")
 ylabel("odhad parametrů")
+ylim([0 2])
 
 figure(6); 
 plot([1,2, 3, 4, 5], -[theta2(1,10^2),theta2(1,10^3),theta2(1,10^4),theta2(1,10^5),theta2(1,10^6),],"*",...
@@ -163,6 +164,7 @@ legend('a', 'b', 'c')
 title("rekurzivní PEM")
 xlabel("počet dat")
 ylabel("odhad parametrů")
+ylim([0 2])
 
 figure(8); 
 plot([1,2, 3, 4, 5], -[th_all(1,10^2),th_all(1,10^3),th_all(1,10^4),th_all(1,10^5),th_all(1,10^6),],"*",...
