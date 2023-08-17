@@ -30,7 +30,7 @@ for i = 2:ND
 end
 
 p1 = figure;
-plot(t, y,'LineWidth',1.2);
+scatter(t, y,'.');
 title('System');
 legend('gaussian');
 xlabel("t")
