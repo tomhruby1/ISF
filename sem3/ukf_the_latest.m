@@ -1,4 +1,4 @@
-%% EXTENDED KALMAN FILTER
+%% UNCENTED KALMAN FILTER
 % inicializace
 close all; clear; clc;
 
@@ -56,7 +56,10 @@ sim.v = mvgrnd([0;0], R, N)';
 %     [sim.x(:,k+1), sim.u(:,k+1)] = state_eq(sim.x(:,k), sim.u(:,k), sim.w(1:4,k), sim.w_u(:,k)); % dyn. sim.
 %      sim.z(:,k+1) = get_observ(sim.x(:,k+1), sim.v(:,k+1)); % measurement sim
 %end
-
+% figure;
+% plot(sim.x')
+% legend('x', 'y', 'x*', 'y*');
+% title('State');
 
 % POSKYTNUTA DATA
 load('isf_4_data.mat');
@@ -65,12 +68,6 @@ sim.z = z;
 sim.u = u;
 N = size(sim.x, 2);
 
-figure(1);
-plot(sim.x')
-legend('x', 'y', 'x*', 'y*','Location', 'best');
-title('Stavy');
-xlabel('t');
-xlim([0 N]);
 %% estimace
 
 
@@ -89,7 +86,7 @@ for i=t
     Ps{i} = kfres.pf{1,i}(1:2,1:2);
 end
 
-% POLOHA
+%poloha
 figure(2); hold on;
 % plot(kfres.xp(1,t), kfres.xp(2,t), 'cx');
 % plot(kfres.xp(1,t), kfres.xp(2,t), 'c-');
@@ -99,7 +96,7 @@ plot(sim.x(1,t), sim.x(2,t), 'gx');
 draw3sigma(Ps, mus);
 legend('poz. filtrovaná', 'poz. filtrovaná', 'skutečná pozice', 'cov', 'Location', 'northwest');
 title('Pozice lodi');
-xlabel('x'); ylabel('y');
+xlabel('x'); ylabel('y')
 
 
 % RYCHLOST
@@ -115,9 +112,8 @@ legend('filt. odhad x', 'filt. odhad y', 'skut. x', 'skut. y');
 xlabel('t');
 title('Rychlost');
 
-
 % varF = []
-% varF_tot = []
+% varF_tot = [,
 % varP = []
 % varP_tot = []
 for k = 1:N-1
@@ -134,12 +130,12 @@ legend( 'tot. pred. var', 'tot. filt. var');
 title('Variance');
 xlabel('t');
 
-figure(5); hold on;
-plot(t, kfres.resid(1,t));
-plot(t, kfres.resid(2,t));
-legend('x resid', 'y resid');
-title('Residuum');
-xlabel('t')
+% figure(5); hold on;
+% plot(t, kfres.resid(1,t));
+% plot(t, kfres.resid(2,t));
+% legend('x resid', 'y resid');
+% title('Residuum');
+% xlabel('t')
 
 % RIZENI
 figure(6); hold on
@@ -152,10 +148,12 @@ xlabel('t');
 title('Rizeni');
 
 
-
 mse_filt_x  = (sim.x(1, 1:end-1) - kfres.xf(1, :)) * (sim.x(1, 1:end-1) - kfres.xf(1, :))';
 mse_filt_y  = (sim.x(2, 1:end-1) - kfres.xf(2, :)) * (sim.x(2, 1:end-1) - kfres.xf(2, :))';
 mse = mse_filt_x + mse_filt_y 
+
+%%
+
 
 
 % stav: [poloha, rychlost]  
@@ -173,11 +171,35 @@ function new_z = get_observ(x, v)
 end
 
 
+% points sampling
+function [chi,w] = uPoints(x,p)
+    n = size(x,1);
+    % sampling 2n + 1 bodu
+    % kappa = 0 (...param rozptylu)
+    chi = zeros(2*n+1, n);
+    w   = zeros(2*n+1, 1);
+    S = chol(p, 'lower'); 
+    chi(1, :) = x;
+    w(1) = 0;
+    for i = 2:n+1
+        chi(i, :) = x + sqrt(n) .* S(:,i-1);
+    end
+    for i = n+2:2*n+1
+        chi(i,:) = x - sqrt(n) .* S(:,i-n-1);
+    end
+    for i = 2:2*n+1
+        w(i) = 1/(2*n);
+    end
+    chi = chi'; % so its [dim x numpoints]
+    w = w';
+end
+
 function h = getH(x)
-    h = [
-            atan2(x(2), x(1));
-            sqrt(x(2)^2 + x(1)^2);
-        ];
+    h = [atan2(x(2,:), x(1,:));sqrt(x(1,:).^2 + x(2,:).^2)];
+%         h = [
+%                 atan2(x(2), x(1));
+%                 sqrt(x(2)^2 + x(1)^2);
+%             ];
 end
 % jacobian h based on x1, x2
 function H = getHJacob(x) 
@@ -188,33 +210,68 @@ function H = getHJacob(x)
         ];
 end
 
-
 % KALMAN filtr
 function res = kf(N, z)
     global P0 m_x0
     % init result struct
-    res.xp(:,1) = mvgrnd(m_x0, P0, 1)'; % init x0 -- nejistota poc. odhadu
+    res.xp(:,1) = mvgrnd(m_x0, P0, 1)'; % init x0
     res.pp{1} = P0;
     for k = 1:1:N-1
-        [res.xf(:,k), res.pf{k}, res.resid(:,k)] = kff(res.xp(:,k), res.pp{k}, z(:,k));
-        [res.xp(:, k+1), res.pp{k+1}] = kfp(res.xf(:,k), res.pf{k});
+        [res.xf(:,k), res.pf{k}, res.K{k}] = UKFf(res.xp(:,k), res.pp{k}, z(:,k));
+        [res.xp(:, k+1), res.pp{k+1}] = UKFp(res.xf(:,k), res.pf{k});
     end
 end
-function [xp, pp] = kfp(xf, pf)
-    global F Q
-    xp = F*xf;
-    pp = F*pf*F' + Q;
+function [xp,Pp]=UKFp(xf,Pf)
+    global Q F
+    [X,w]=uPoints(xf,Pf);
+    Y=F*X;
+    xp=Y*w';
+    Ydiff=Y-xp;
+    Pp=Ydiff.*w*Ydiff'+Q;
 end
-function [xf, pf, resid] = kff(xp, pp, z)
+function [xf,Pf,K]=UKFf(xp,Pp,z)
     global R
-    H = getHJacob(xp);
-    h = getH(xp);
-    K  = pp * H' * (H*pp*H' + R)^(-1);
-    xf = xp + K * (z-h); % bacha v reziduu h() ne jacob. H
-    pf = pp - K *H*pp;
-    resid = z-h;
+    [X,w]=uPoints(xp,Pp);
+    Y=getH(X);
+    zp=Y*w';
+    Ydiff=Y-zp;
+    Pxz=(X-xp).*w*Ydiff';
+    Pzz=Ydiff.*w*Ydiff'+R;
+    dz=z-zp;
+    K=Pxz/Pzz;
+    xf=xp+K*dz;
+    Pf=Pp-K*Pxz';
 end
 
+
+
+
+% function [xp, pp] = ukfp(xf, pf)
+%     global F Q
+%     [X,w] = uPoints(xf, pf);
+%     y = F*X; % sampled points through the state eq.
+%     xp = y * w';
+%     pp = (y-xp) .*w * (y-xp)' + Q;
+% end
+% function [xf, pf, resid] = ukff(xp, pp, z)
+%     global R
+%     [X,w] = uPoints(xp, pp);
+%     % trasf x do z prostoru ---> z_mean
+%     z_transf = zeros(6,13); % 2*
+%     for n=1:size(X,2) %over the sample dim
+%         % fill in the first 2 dims from h(.)
+%         z_transf(1:2,n) = getH(X(:,n)) * w(n);
+%     end
+%     z_mean = zeros(6,1);
+%     z_mean(:) = z_transf * w';
+%     pxz = (X - xp) .* w * (X - xp)';
+%     R_big = zeros(6,6); R_big(1:2,1:2) = R;
+%     pzz = (z_transf - z_mean) .* w * (z_transf - z_mean)' + R_big;
+%     z_big = zeros(6,1); z_big(1:2) = z;
+%     inov = z_big - z_mean;
+%     xf = xp + pxz * pzz^(-1) * inov;
+%     pf = pp - pxz * pzz^(-1) * pxz';
+% end
 
 
 % multivariate gaussian sampling 
