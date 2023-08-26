@@ -102,32 +102,11 @@ title('Pozice lodi');
 xlabel('x'); ylabel('y');
 
 
-% reziduum pozice 
+% reziduum pozice  
 
-% reziduum rychlosti 
-
-
-% varF = []
-% varF_tot = []
-% varP = []
-% varP_tot = []
-% for k = 1:N-1
-%     varF(:,k) = diag(kfres.pf{1,k});
-%     varP(:,k) = diag(kfres.pp{1,k});
-%     varF_tot(k) = trace(kfres.pf{1,k});
-%     varP_tot(k) = trace(kfres.pp{1,k});
-% end
-
-% figure; hold on;
-% plot(t, varP_tot(t));
-% plot(t, varF_tot(t));
-% legend( 'tot. pred. var', 'tot. filt. var'); 
-% title('Variance');
-% xlabel('t');
-
-figure; hold on;
-plot(t, kfres.resid(1,t));
-plot(t, kfres.resid(2,t));
+figure(3); hold on;
+plot(t, kfres.resid(2,t), 'c-', 'Linewidth', 2);
+plot(t, kfres.resid(1,t),'b-','Linewidth', 2);
 legend('predikované residuum', 'filtrované residuum');
 title('Residuum pozice');
 xlabel('t')
@@ -136,20 +115,37 @@ mse_filt_x  = (sim.x(1, 1:end-1) - kfres.xf(1, :)) * (sim.x(1, 1:end-1) - kfres.
 mse_filt_y  = (sim.x(2, 1:end-1) - kfres.xf(2, :)) * (sim.x(2, 1:end-1) - kfres.xf(2, :))';
 mse = mse_filt_x + mse_filt_y 
 
+% reziduum rychlosti
+cartesian = zeros(2, N);
+velocity_car = zeros(1, N);
+
+for ind = 2:N
+    cartesian(1,ind) = atand(z(1, ind)/z(1,ind-1))*cos(sqrt(z(1,ind-1)^2 +z(1,ind)^2));
+    cartesian(2,ind) = atand(z(1, ind)/z(1,ind-1))*sin(sqrt(z(1,ind-1)^2 +z(1,ind)^2));
+    velocity_car(1,ind) = sqrt((cartesian(1,ind)-cartesian(1,ind-1))^2 + (cartesian(2,ind)-cartesian(2,ind-1))^2);
+
+    cartesian_pred(1,ind) = atand(kfres.xp(1, ind)/kfres.xp(1,ind-1))*cos(sqrt(kfres.xp(1,ind-1)^2 +kfres.xp(1,ind)^2));
+    cartesian_pred(2,ind) = atand(kfres.xp(1, ind)/kfres.xp(1,ind-1))*sin(sqrt(kfres.xp(1,ind-1)^2 +kfres.xp(1,ind)^2));
+    velocity_car_pred(1,ind) = sqrt((cartesian_pred(1,ind)-cartesian_pred(1,ind-1))^2 + (cartesian_pred(2,ind)-cartesian_pred(2,ind-1))^2);
+end 
+
+
+figure(4)
+plot(t, velocity(1,5:120), 'r-')
 
 % stav: [poloha, rychlost]  
 % dynamics simulation
-function [x_new, u_new] = state_eq(x, u, w, wu)
-    global f B
-    % u neznamo, v simulaci nahodna prochazka 
-    u_new = eye(2)*u + wu;
-    x_new = f*x + B*u_new + w;
-end
-% measurement simulation --- get new observation
-function new_z = get_observ(x, v)
-   Cx = [atan2(x(2), x(1)); sqrt(x(2)^2 + x(1)^2)];
-   new_z = Cx + v;
-end
+% function [x_new, u_new] = state_eq(x, u, w, wu)
+%     global f B
+%     % u neznamo, v simulaci nahodna prochazka 
+%     u_new = eye(2)*u + wu;
+%     x_new = f*x + B*u_new + w;
+% end
+% % measurement simulation --- get new observation
+% function new_z = get_observ(x, v)
+%    Cx = [atan2(x(2), x(1)); sqrt(x(2)^2 + x(1)^2)];
+%    new_z = Cx + v;
+% end
 
 
 function h = getH(x)

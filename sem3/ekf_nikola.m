@@ -86,7 +86,7 @@ toc
 
 %% RESULTS
 k_start = 1; % plot K-first steps
-k_end = 120;
+k_end = 454;
 t = k_start:k_end;
 
 figure (2); hold on;
@@ -102,32 +102,11 @@ title('Pozice lodi');
 xlabel('x'); ylabel('y');
 
 
-% reziduum pozice 
+% reziduum pozice  
 
-% reziduum rychlosti 
-
-
-% varF = []
-% varF_tot = []
-% varP = []
-% varP_tot = []
-% for k = 1:N-1
-%     varF(:,k) = diag(kfres.pf{1,k});
-%     varP(:,k) = diag(kfres.pp{1,k});
-%     varF_tot(k) = trace(kfres.pf{1,k});
-%     varP_tot(k) = trace(kfres.pp{1,k});
-% end
-
-% figure; hold on;
-% plot(t, varP_tot(t));
-% plot(t, varF_tot(t));
-% legend( 'tot. pred. var', 'tot. filt. var'); 
-% title('Variance');
-% xlabel('t');
-
-figure; hold on;
-plot(t, kfres.resid(1,t));
-plot(t, kfres.resid(2,t));
+figure(3); hold on;
+plot(t, kfres.resid(2,t), 'c-', 'Linewidth', 2);
+plot(t, kfres.resid(1,t),'b-','Linewidth', 2);
 legend('predikované residuum', 'filtrované residuum');
 title('Residuum pozice');
 xlabel('t')
@@ -136,6 +115,29 @@ mse_filt_x  = (sim.x(1, 1:end-1) - kfres.xf(1, :)) * (sim.x(1, 1:end-1) - kfres.
 mse_filt_y  = (sim.x(2, 1:end-1) - kfres.xf(2, :)) * (sim.x(2, 1:end-1) - kfres.xf(2, :))';
 mse = mse_filt_x + mse_filt_y 
 
+% reziduum rychlosti
+cartesian = zeros(2, N);
+velocity_car = zeros(1, N);
+
+for ind = 2:N
+    cartesian(1,ind) = atand(z(1, ind)/z(1,ind-1))*cos(sqrt(z(1,ind-1)^2 +z(1,ind)^2));
+    cartesian(2,ind) = atand(z(1, ind)/z(1,ind-1))*sin(sqrt(z(1,ind-1)^2 +z(1,ind)^2));
+    velocity_car(1,ind) = sqrt((cartesian(1,ind)-cartesian(1,ind-1))^2 + (cartesian(2,ind)-cartesian(2,ind-1))^2);
+
+    cartesian_pred(1,ind) = atand(kfres.xp(1, ind)/kfres.xp(1,ind-1))*cos(sqrt(kfres.xp(1,ind-1)^2 +kfres.xp(1,ind)^2));
+    cartesian_pred(2,ind) = atand(kfres.xp(1, ind)/kfres.xp(1,ind-1))*sin(sqrt(kfres.xp(1,ind-1)^2 +kfres.xp(1,ind)^2));
+    velocity_car_pred(1,ind) = sqrt((cartesian_pred(1,ind)-cartesian_pred(1,ind-1))^2 + (cartesian_pred(2,ind)-cartesian_pred(2,ind-1))^2);
+end 
+
+
+figure(4)
+plot(t, velocity_car(1,t), 'r-')
+hold on 
+plot(t, velocity_car_pred(1,t), 'b-')
+
+figure(5);
+diff = abs(velocity_car_pred -velocity_car);
+plot(t, diff(1,t))
 
 % stav: [poloha, rychlost]  
 % dynamics simulation
