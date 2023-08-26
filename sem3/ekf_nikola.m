@@ -131,9 +131,9 @@ end
 
 
 figure(4)
-plot(t, velocity_car(1,t), 'r-')
+plot(t(5:120), velocity_car(1,5:120), 'r-')
 hold on 
-plot(t, velocity_car_pred(1,t), 'b-')
+plot(t(5:120), velocity_car_pred(1,5:120), 'b-')
 
 figure(5);
 diff = abs(velocity_car_pred -velocity_car);
