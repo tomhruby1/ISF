@@ -42,7 +42,7 @@ P0 = eye(6);
 P0(5,5) = ALPHA_P; P0(6,6) = ALPHA_P; %pocatecni podminka pro rizeni
 
 
-%% SIMULATION
+% SIMULATION
 % precompute noises
 sim.w = mvgrnd(zeros(size(Q,1),1), Q, N)';
 sim.w_u = mvgrnd([0;0], eye(2)*ALPHA_Q, N)'; 
@@ -67,11 +67,11 @@ N = size(sim.x, 2);
 
 figure(1);
 plot(sim.x')
-legend('x', 'y', 'x*', 'y*','Location', 'best');
+legend('x', 'y', 'x*', 'y*','Location', 'Southwest');
 title('Stavy');
 xlabel('t');
 xlim([0 N]);
-%% estimace
+% estimace
 
 
 tic
@@ -79,9 +79,9 @@ tic
 toc
 
 
-%% RESULTS
+% RESULTS
 k_start = 1; % plot K-first steps
-k_end = 20;
+k_end = 10;
 t = k_start:k_end;
 
 for i=t
@@ -97,23 +97,35 @@ plot(kfres.xf(1,t), kfres.xf(2,t), 'bx');
 plot(kfres.xf(1,t), kfres.xf(2,t), 'b-');
 plot(sim.x(1,t), sim.x(2,t), 'gx');
 draw3sigma(Ps, mus);
-legend('poz. filtrovaná', 'poz. filtrovaná', 'skutečná pozice', 'cov', 'Location', 'northwest');
+legend('poz. filtrovaná', 'poz. filtrovaná', 'skutečná pozice', '3-sigma', 'Location', 'northwest');
 title('Pozice lodi');
 xlabel('x'); ylabel('y');
 
 
+figure(7); hold on;
+rozdil_pozice = sim.x(1:2,1:454)-kfres.xf(1:2,1:454);
+MSE_x = mse(sim.x(1,1:454),kfres.xf(1,1:454))
+MSE_y = mse(sim.x(2:454),kfres.xf(2,1:454))
+plot(linspace(1,454,454), rozdil_pozice(1,:), 'b-');
+plot(linspace(2,454,454), rozdil_pozice(2,:), 'r-');
+legend('x ochylka', 'y odchylka','Location', 'northwest');
+title('Odchylka filtrované hodnoty od skutečné');
+xlabel('x'); ylabel('y');
+
+%%
 % RYCHLOST
-k_end = 100;
+k_end = 454;
 t = k_start:k_end;
 
 figure(3); hold on
-plot(t, kfres.xf(3,1:t(end)));
-plot(t, kfres.xf(4,1:t(end)));
-plot(t, sim.x(3,1:t(end)));
-plot(t, sim.x(4,1:t(end)));
-legend('filt. odhad x', 'filt. odhad y', 'skut. x', 'skut. y');
+plot(t, kfres.xf(3,1:t(end)), 'b-');
+plot(t, kfres.xf(4,1:t(end)), 'r-');
+plot(t, sim.x(3,1:t(end)), 'g-');
+plot(t, sim.x(4,1:t(end)), 'y-');
+legend('filt. odhad x', 'filt. odhad y', 'skut. x', 'skut. y', 'Location', 'Northwest');
 xlabel('t');
 title('Rychlost');
+xlim([0 N]);
 
 
 % varF = []
